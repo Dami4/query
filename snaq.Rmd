@@ -1,5 +1,6 @@
 ---
 title: "Snap"
+runtime: shiny
 output: html_document
 ---
 

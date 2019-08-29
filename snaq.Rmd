@@ -1,0 +1,54 @@
+---
+title: "Snap"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(dplyr)
+library(igraph)
+library(threejs)
+library(magrittr)
+library(htmlwidgets)
+library(htmltools)
+
+read_excel_allsheets <- function(filename) {
+   sheets <- readxl::excel_sheets(filename)
+   x <- lapply(sheets[c(1:2)], function(X) readxl::read_excel(filename, sheet = X, skip=1, guess_max=5))
+   names(x) <- sheets[c(1:2)]
+   x
+}
+
+data <- read_excel_allsheets("~/Downloads/query1.xlsx")
+graph <- data$Edges %>%
+  select(`Vertex 1`, `Vertex 2`) %>%
+  graph_from_data_frame(vertices = data$Vertices)
+
+V(graph)$Size <-((V(graph)$Size - min(V(graph)$Size, na.rm = T)) / (max(V(graph)$Size, na.rm = T) - min(V(graph)$Size, na.rm=T)))
+  
+V(graph)$Size <-  round(V(graph)$Size + .2, 3)
+  
+V(graph)$color <- "#318CE7"
+  
+graph_query <- graphjs(graph,layout = layout_with_fr(graph, dim=3), vertex.size = V(graph)$Size, vertex.label = paste0("<b>", V(graph)$Name, "<b>"), vertex.color = V(graph)$color,edge.color="orange", bg = "#FFFFFF", font.main = "38px Sans-Serif")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+print(graph_query)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
